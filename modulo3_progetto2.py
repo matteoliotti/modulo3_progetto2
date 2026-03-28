@@ -4,6 +4,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.linear_model import LinearRegression, Ridge, Lasso
 from sklearn.metrics import mean_squared_error, r2_score
+import matplotlib.pyplot as plt
 
 linnerud = load_linnerud()
 X = linnerud.data
@@ -47,3 +48,20 @@ for target_name, y_target in [('PCA', y_pca), ('Manuale', y_manual)]:
         results[target_name][model_name] = {'MSE': mse, 'R2': r2}
 
 print(results)
+
+
+
+pca_X = PCA(n_components=2)
+X_pca = pca_X.fit_transform(X_std)
+
+plt.scatter(X_pca[:, 0], y_pca)
+
+for model_name, model in models.items():
+    model.fit(X_pca[:, 0].reshape(-1, 1), y_pca)
+    y_pred = model.predict(X_pca[:, 0].reshape(-1, 1))
+    plt.plot(X_pca[:, 0], y_pred, label=f"{model_name} (R2={r2_score(y_pca, y_pred):.2f})")
+
+plt.xlabel('PC1 delle Feature')
+plt.ylabel('Target (PCA)')
+plt.legend()
+plt.show()
